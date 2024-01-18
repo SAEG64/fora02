@@ -1,4 +1,5 @@
 # Analyses of the paper "Multi-Heuristic Policies in a Sequention Decision-Making Task"
+Download entire folder including all the data folders to run the following analyses:
 - Compute MDP values
 - Model comparisons
 - Model fits
