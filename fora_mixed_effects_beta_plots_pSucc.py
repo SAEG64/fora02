@@ -31,7 +31,7 @@ for itr, fle in enumerate(glob.glob(path + "DATA_clean/DATA_fitted/test_data.*.C
     
     ## Get coefs for Conditions1
     # Get model
-    model = data_cond1['risk threat encounter']
+    model = data_cond1['$\mathit{p}$ success']
     # Get reponses
     respo = np.array(data_cond1["fora_response"])
     # Add constant for intercept
@@ -46,7 +46,7 @@ for itr, fle in enumerate(glob.glob(path + "DATA_clean/DATA_fitted/test_data.*.C
     
     ## Get coefs for Conditions2
     # Get model
-    model = data_cond2['risk threat encounter']
+    model = data_cond2['$\mathit{p}$ success']
     # Get reponses
     respo = np.array(data_cond2["fora_response"])
     
@@ -61,23 +61,23 @@ for itr, fle in enumerate(glob.glob(path + "DATA_clean/DATA_fitted/test_data.*.C
 
 # Prepare data for plotting
 df11 = pd.DataFrame(coefs_cond1[0])
-df11['Coefficients'] = r"$\beta_0$"
+df11['Coefficients'] = r"$\beta_0 (intercept)$"
 df12 = pd.DataFrame(coefs_cond1[1])
-df12['Coefficients'] = r"$\beta_1$"
+df12['Coefficients'] = r"$\beta_1 (slope)$"
 df3 = pd.concat([df11, df12], axis = 0)
 df3['Conditions'] = "loose"
 df21 = pd.DataFrame(coefs_cond2[0])
-df21['Coefficients'] = r"$\beta_0$"
+df21['Coefficients'] = r"$\beta_0 (intercept)$"
 df22 = pd.DataFrame(coefs_cond2[1])
-df22['Coefficients'] = r"$\beta_1$"
+df22['Coefficients'] = r"$\beta_1 (slope)$"
 df4 = pd.concat([df21, df22], axis = 0)
 df4['Conditions'] = "tense"
 df_stack = pd.concat([df3, df4], axis = 0).reset_index(drop=True)
 df_stack = df_stack.rename(columns = {0:'β distributions'})
-df_beta0 = df_stack[df_stack['Coefficients'] == r"$\beta_0$"]
+df_beta0 = df_stack[df_stack['Coefficients'] == r"$\beta_0 (intercept)$ (intercept)"]
 df_beta0 = df_beta0.reset_index(drop=True)
 lines_beta0 = [[x, list(zip([1]*29, df_beta0["β distributions"].iloc[29:58]))[i]] for i, x in enumerate(zip([0]*29, df_beta0["β distributions"].iloc[0:29]))]
-df_beta1 = df_stack[df_stack['Coefficients'] == r"$\beta_1$"]
+df_beta1 = df_stack[df_stack['Coefficients'] == r"$\beta_1 (slope)$"]
 df_beta1 = df_beta1.reset_index(drop=True)
 lines_beta1 = [[x, list(zip([1]*29, df_beta1["β distributions"].iloc[29:58]))[i]] for i, x in enumerate(zip([0]*29, df_beta1["β distributions"].iloc[0:29]))]
 
@@ -96,7 +96,10 @@ ax = sns.boxplot(x="Conditions", y="β distributions",
 sns.stripplot(x="Conditions", y="β distributions",
             hue="Coefficients", palette=["m", "g"],
             data=df_stack, dodge=True)
-ax.set_title('Interaction threat risk',
+sns.lineplot(x="Conditions", y="β distributions",
+            hue="Coefficients", palette=["m","g"],
+            data=df_stack, ci = None, ax=ax)
+ax.set_title('Interaction $\mathit{p}$ success',
              loc ='left', size = 29)
 # Customize ticks
 ax.tick_params(bottom=True, left=True, size=5, direction= "in")
