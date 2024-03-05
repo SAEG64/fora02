@@ -15,14 +15,26 @@ filepath <- paste(dirname(rstudioapi::getSourceEditorContext()$path), "/", sep =
 setwd(filepath)
 # Data import
 df_allSubs <- read_csv("DATA_clean/DATA_group_level/test_data.group_level.csv")
+# Add WWS model and bin_e
+df_allSubs['wait_when_safe'] <- NaN
+df_allSubs['bin_e_state'] <- df_allSubs['binary energy state']
+for (i in 1:nrow(df_allSubs)) {
+  if (df_allSubs[i,'in_LP'] > 8-df_allSubs[i,'day.thisN']) {
+    df_allSubs[i,'wait_when_safe'] <- 0
+  } else {
+    df_allSubs[i,'wait_when_safe'] <- 1
+  }
+}
 # Run mixed effects model
 mdl <- glmer(
   fora_response ~ 
     p_succ_correct*condition_rORp + 
     r_threat*condition_rORp + 
-    expected_gain*condition_rORp + 
+    wait_when_safe*condition_rORp + 
+    bin_e_state*condition_rORp + 
     (1|subject_ID), 
-  data=df_allSubs, family="binomial"(link = "logit"))
+  data=df_allSubs, family="binomial"(link = "logit"), 
+  control = glmerControl(optimizer="bobyqa"))
 ss <- getME(mdl,c("theta","fixef"))
 #ss <- getME(mdl,"ALL")
 m3 <- update(
