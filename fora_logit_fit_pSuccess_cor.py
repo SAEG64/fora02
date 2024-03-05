@@ -6,7 +6,6 @@ Created on Tue Mar 22 09:59:09 2022
 @author: sergej
 """
 
-import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -20,10 +19,10 @@ data = pd.read_csv(path + "DATA_clean/DATA_group_level/test_data.group_level.csv
 data['bins'] = pd.qcut(data['$\mathit{p}$ success cor'], 9)
 
 # Aggregate
-top = data.groupby(['bins'])['optimal policy', 
-                             'fora_response', 
+top = data.groupby(['bins'])['$\mathit{p}$ success','fora_response', 
                              'optimal policy fit', 
-                             '$\mathit{p}$ success cor fit', 
+                             '$\mathit{p}$ success cor fit',
+                             '$\mathit{p}$ success cor + cap fit',
                              'expected gain naive fit'].mean()
 # Binning interval averages
 top['binNr'] = [(
@@ -32,7 +31,7 @@ top['binNr'] = [(
     2 for i in range(0, len(top))]
 data['resp_count'] = 1
 top['resp_sum'] = data.groupby(['bins'])['resp_count'].sum()
-top['fora_sum'] = data.groupby(['bins'])['fora_response'].sum()
+# top['fora_sum'] = data.groupby(['bins'])['fora_response'].sum()
 # ci = np.sqrt((top['fora_response'] * (1-top['fora_response'])) / top['resp_sum']) * 1.96
 ci = data.groupby(['bins'])['fora_response'].sem(ddof=1)*1.96
 
@@ -66,15 +65,15 @@ plt.ylabel("Foraging likelihood", fontsize=30)
 plt.xlabel("$\mathit{p}$ success cor", fontsize=30)
 plt.yticks([0, 0.2, 0.4, 0.6, 0.8, 1],[0, 0.2, 0.4, 0.6, 0.8, 1])
 plt.xticks([0.2, 0.3, 0.4, 0.5])
-ax.tick_params(axis="x", labelsize=24)
 ax.set(ylim=(0, 1))
-ax.tick_params(axis="y", labelsize=24, labelbottom = False)
+ax.tick_params(axis="x", labelsize=24)
+ax.tick_params(axis="y", labelsize=24)
 # Legend
-box = ax.get_position()
-ax.set_position([   # Shrink current axis by 20%
-    box.x0, box.y0, 
-    box.width * 0.8, 
-    box.height])
+# box = ax.get_position()
+# ax.set_position([   # Shrink current axis by 20%
+#     box.x0, box.y0, 
+#     box.width * 0.8, 
+#     box.height])
 ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=24)
 # Show plot
 plt.show()
