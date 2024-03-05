@@ -22,6 +22,7 @@ data['bins'] = pd.qcut(data['optimal policy'], 9)
 top = data.groupby(['bins'])['optimal policy', 'fora_response', 
                              'optimal policy fit', 
                              '$\mathit{p}$ success cor fit', 
+                             '$\mathit{p}$ success cor + cap fit',
                              'expected gain naive fit'].mean()
 # Binning interval averages
 top['binNr'] = [(
@@ -43,8 +44,8 @@ sns.set_palette("Paired")
 fig, ax = plt.subplots(figsize=(6, 6),dpi = 600)
 # Create subplots
 plot0 = sns.regplot(
-    x='binNr', y='fora_response', data=top, logistic=True, ci=None, ax=ax, 
-    label='actual responses', scatter_kws={'s':top['resp_sum']/2}, 
+    x='binNr', y='fora_response', data=top, logistic=True, ci=None,
+    ax=ax, label='actual responses', scatter_kws={'s':top['resp_sum']/2}, 
     line_kws = {"color": "None"})
 ax.errorbar(
     x='binNr', y='fora_response', data=top, yerr = ci, fmt='none', capsize=0, 
@@ -66,11 +67,11 @@ ax.set(ylim=(0, 1))
 ax.tick_params(axis="x", labelsize=24)
 ax.tick_params(axis="y", labelsize=24)
 # Legend
-box = ax.get_position()
-ax.set_position([   # Shrink current axis by 20%
-    box.x0, box.y0, 
-    box.width * 0.8, 
-    box.height])
+# box = ax.get_position()
+# ax.set_position([   # Shrink current axis by 20%
+#     box.x0, box.y0, 
+#     box.width * 0.8, 
+#     box.height])
 ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), fontsize=24)
 # Show plot
 plt.show()
