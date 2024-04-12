@@ -10,7 +10,7 @@ Created on Thu Apr 27 11:42:56 2023
 # 1 for p success dominant heuristic data
 # 2 for r threat encounter dominant data
 # If anything else: whole dataset is selected
-condition = 0
+condition = 2
 
 # Requirements
 import pandas as pd
@@ -48,6 +48,6 @@ ax.set_title('Protected \nexceedance \nprobability (PEP)',
 # ax.set_title('PEP tense \ncompetition',loc ='left', size = 46)
 plt.xlabel("", fontsize=40)
 # Customize y-ticks
-plt.yticks([0, 1,2,3,4,5,6,7,8,9],['','','','','','','','','$\\mathit{p}$ success cor + cap','optimal policy'])
+plt.yticks([0, 1,2,3,4,5,6,7,8,9, 10],['','','','','','','','','','multi-heuristic policy',''])
 plt.xticks([0, 0.5, 1, 1.05], ["0.0", "0.5", "1.0", ""])
 ax.get_yticklabels()[-2].set_color("blue")

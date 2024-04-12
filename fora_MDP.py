@@ -224,6 +224,16 @@ df_reward = pd.concat([rewFORA,rewWAIT], axis=1)
 op_value = pd.DataFrame(np.concatenate(rew_foraALL2)-np.concatenate(rew_waitALL2))
 names = ['env' + '1' for i in range(0, n_states)]+['env' + '2' for j in range(0, n_states)]
 op_value.columns = names
+# Normalize
+op_separ = np.array_split(op_value, 72)
+op_separ = [[op_separ[i].iloc[:,:7],op_separ[i].iloc[:,7:14]] for i in range(72)]
+op_separ_f2 = [op_separ[i][1]*(op_separ[i][0].iloc[1,1]/op_separ[i][1].iloc[1,1]) for i in range(len(op_separ))]
+op_separ = [pd.concat([op_separ[i][0], op_separ_f2[i]], axis = 1) for i in range(72)]
+op_separ_trans = [op_separ[i+1]*(op_separ[0].iloc[1,1]/op_separ[i+1].iloc[1,1]) for i in range(71)]
+op_separ[1:] = op_separ_trans
+op_separ = pd.concat(op_separ)
+op_separ.iloc[:,1] = np.max(op_separ.iloc[1,:])
+op_separ.iloc[::9,:] = 0
 # Final products
 MDP_rew_sheet = df_reward.to_csv(path + 'MDP_action_values.csv', index = False)
 policy_sheet = pol_REV.to_csv(path + 'MDP_policy.csv', index = False)

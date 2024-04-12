@@ -15,7 +15,7 @@ import pandas as pd
 import math
 from copy import deepcopy
 import statsmodels.api as sm
-from scipy.stats import pearsonr
+import scipy.stats as stats
 import statistics
 import os
 path = os.path.dirname(__file__)+"/"
@@ -28,21 +28,19 @@ mpl.rcParams['font.family'] = 'Arial'
 sns.set_style("white")
 sns.set_palette("Paired")
 
-## Select data subset for condition
-# 1 for p success dominant heuristic data
-# 2 for r threat encounter dominant data
-# If anything else: whole dataset is selected
-condition = 0
+## Select data subset
+#  whole data set or condition
+#  according to model comparison script
+from fora_logit_BIC_and_BF import condition
 
 ## Requirements for simulation
-import os
 frst = pd.read_csv(path + "test_items.csv")
-mdpV = pd.read_csv(path + "op_binaryREV_select.csv")
+mdpV = pd.read_csv(path + "MDP_action_value_difference.csv")
 frst['expected_gain_left'] = frst['pLeft_correct']*frst["value_succLeft"]+frst["r_threatL"]*(-3)+(1-frst['pLeft_correct'])*(-2)
 frst['expected_gain_right'] = frst['pRight_correct']*frst["value_succRight"]+frst["r_threatR"]*(-3)+(1-frst['pRight_correct'])*(-2)
 os.chdir(path)
 import fora_logit_coefficients
-mdlName, mu_b0, mu_b1, si_b0, si_b1, b0_subs, b1_subs = fora_logit_coefficients.get_BIC(condition)
+mdlName, mu_b0, mu_b1, si_b0, si_b1, b0_subs, b1_subs, cof_all, min_b0, max_b0, min_b1, max_b1 = fora_logit_coefficients.get_BIC()
 
 # Filter conditions
 if condition == 1:
@@ -68,7 +66,7 @@ def activate(dv):
     return p_fora
 
 # Parameters
-epis = 10
+epis = 1000
 nDay = 8
 nSta = 7
 
@@ -89,9 +87,15 @@ for itr, mod in enumerate(mdlName):
     winr = np.zeros((len(mdlName)))
     for epi in range(epis):
         
-        # Draw logistic betas from empirical distribution
-        b0 = np.random.normal(mu_b0[itr], si_b0[itr], size = 1)[0]
-        b1 =np.random.normal(mu_b1[itr], si_b1[itr], size = 1)[0]  
+        # Draw logistic betas from empirical distribution (truncated)
+        lower_b0 = min_b0[itr]
+        upper_b0 = max_b0[itr]
+        lower_b1 = min_b1[itr]
+        upper_b1 = max_b1[itr]
+        b0 = stats.truncnorm.rvs((lower_b0 - mu_b0[itr]) / si_b0[itr], (upper_b0 - mu_b0[itr]) / si_b0[itr], loc=mu_b0[itr], scale=si_b0[itr])
+        b1 = stats.truncnorm.rvs((lower_b1 - mu_b1[itr]) / si_b1[itr], (upper_b1 - mu_b1[itr]) / si_b1[itr], loc=mu_b1[itr], scale=si_b1[itr])
+        # b0 = np.random.normal(mu_b0[itr], si_b0[itr], size = 1)[0]
+        # b1 = np.random.normal(mu_b1[itr], si_b1[itr], size = 1)[0]  
         # Append choice-betas for parameter recovery
         choice_b0.append(b0)
         choice_b1.append(b1)
@@ -126,27 +130,33 @@ for itr, mod in enumerate(mdlName):
                         p_corrected = frst.iloc[frs]["pRight_correct"]
                         r = frst.iloc[frs]["r_threatL"]
                     p_corrected_capped = deepcopy(p_corrected)
+                    optimal_policy = mdpV.iloc[8-day+9*frs,int(lp_cur+nSta*env)]
+                    optimal_policy_cap = mdpV.iloc[8-day+9*frs,int(lp_cur+nSta*env)]
                     if lp_cur == 1:
                         p_corrected_capped = 1
+                        optimal_policy_cap = 0.625
                     elif lp_cur > nDay+1-day:
                         p_corrected_capped = 0
-                    optimal_policy = mdpV.iloc[8-day+9*frs,int(lp_cur+nSta*env)]
+                        optimal_policy_cap = -0.84
                     # Model values
                     mods[0].append(optimal_policy)
-                    mods[1].append(p_corrected_capped)
-                    mods[2].append(p_corrected)
-                    mods[3].append(p_uncorrected)
-                    mods[4].append(expected_gain)
+                    mods[1].append(optimal_policy_cap)
+                    mods[2].append(p_corrected_capped)
+                    mods[3].append(p_corrected)
+                    mods[4].append(p_uncorrected)
+                    mods[5].append(expected_gain)
                     ## 'Actual' (resp. simulated) choices
-                    if mod == 'optimal policy':
+                    if mod == 'optimal policy values':
                         x = optimal_policy
-                    elif mod == '$\\mathit{p}$ success cor + cap':
+                    if mod == '$\\mathit{OP}$ values + cap':
+                        x = optimal_policy_cap
+                    elif mod == 'multi-heuristic policy':
                         x = p_corrected_capped
-                    elif mod == '$\\mathit{p}$ success cor':
+                    elif mod ==  '** $\\mathit{p}$ success':
                         x = p_corrected
-                    elif mod == '$\\mathit{p}$ success':
+                    elif mod == '* $\\mathit{p}$ gain':
                         x = p_uncorrected
-                    elif mod == 'expected gain':
+                    elif mod == 'expected gain naive':
                         x = expected_gain
                     if np.isnan(x) == False:
                         # Decision variable
@@ -224,7 +234,7 @@ for itr, mod in enumerate(mdlName):
     beta0 = pd.DataFrame(list(zip(modell_b0, choice_b0)), columns =  ["Beta0 model", "Beta0 target"])
     beta1 = pd.DataFrame(list(zip(modell_b1, choice_b1)), columns =  ["Beta0 model", "Beta1 target"])
     # Correlation beta0
-    pearsonr(modell_b0, choice_b0)
+    stats.pearsonr(modell_b0, choice_b0)
     sns_plot = sns.lmplot(data = beta0, x="Beta0 model", y="Beta0 target")
     plt.gcf().set_size_inches(6, 6)
     plt.tick_params(axis="x", labelsize=24)
@@ -234,7 +244,7 @@ for itr, mod in enumerate(mdlName):
     plt.xlabel(r"$\beta_0$ model", fontsize=30)
     # sns_plot.figure.savefig('/home/sergej/Documents/academics/dnhi/projects/AAA/FORA02/RESULTS/figures_intern/parameter_recovery/'+mod+' - beta0.png', bbox_inches='tight', dpi=600)
     # Correlation beta1
-    pearsonr(modell_b1, choice_b1)
+    stats.pearsonr(modell_b1, choice_b1)
     sns_plot = sns.lmplot(data = beta1, x="Beta0 model", y="Beta1 target")
     plt.gcf().set_size_inches(6, 6)
     plt.tick_params(axis="x", labelsize=24)

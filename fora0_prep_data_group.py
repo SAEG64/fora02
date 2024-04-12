@@ -23,6 +23,7 @@ for itr, fle in enumerate(glob.glob(path + "DATA_clean/DATA_fitted/test_data.*.C
     sbj = fle[len(path+"DATA_clean/DATA_fitted/test_data."):-len(".CAT_regress.csv")]
     dt = pd.read_csv(path + "DATA_clean/DATA_fitted/test_data." + sbj + ".CAT_regress.csv")
     dt['subject_ID'] = itr+1
+    dt['OP_cap'] = dt['$\mathit{OP}$ values + cap']
     # append catData sheet
     catData = catData.append(dt, ignore_index = True)
 
