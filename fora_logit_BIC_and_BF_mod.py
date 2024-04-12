@@ -43,6 +43,8 @@ mdlName = [
     'expected gain naive',
     '** $\\mathit{p}$ success',
     'marginal value',
+    # '$\\mathit{p}$ success + BES',
+    # '$\\mathit{p}$ success + WWS',
     'multi-heuristic policy',
     '$\mathit{OP}$ values + cap',
     'optimal policy values'
@@ -71,12 +73,7 @@ if __name__ == '__main__':
             dt = dt[dt["p/r heuristic"] == "['r']"]
         dt = dt.reset_index(drop=True)
         
-        # corr = pearsonr(dt['optimal policy'], dt['multi-heuristic policy'])
-        # print(corr)
-        # Filter data
-        # dt = dt[dt['* $\\mathit{r}$ predator'] != 0]
-        # dt = dt[dt['** binary energy state'] != 1]
-        # dt = dt[dt['** wait when safe'] != 0]
+        # Test BES and WWS fit
         # wws_count.append(len(dt[dt['** wait when safe'] == 0]))
         # bes_count.append(len(dt[dt['** binary energy state'] == 1]))
 
@@ -148,12 +145,10 @@ if __name__ == '__main__':
         bic_all.append(bic)
 
         # Export all regression outputs per subject
-        # ATTENTION: parameter recovery and confusion matrix
-        # are computed differently if data subset is selected
-        # by typing condition 1 or 2. This may interfer with oother
-        # scripts that require the default setting of condition = 0
-        # in this script.
-        dt_REV.to_csv(path + "DATA_clean/DATA_fitted/test_data." + sbj + ".CAT_regress" + ".csv", index = False)
+        # ATTENTION: uncommenting this line will cause some data files to be
+        # overwritten if analysis is only done for a subset (conditions) of the
+        # data. This may affect the outcome of other scripts.
+        # dt_REV.to_csv(path + "DATA_clean/DATA_fitted/test_data." + sbj + ".CAT" + "_regress" + ".csv", index = False)
 
     # Compute log-group Bayes factor
     # Transpose subject-model to model-subject order
