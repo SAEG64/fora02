@@ -1,5 +1,5 @@
 # Analyses of the paper "Multi-Heuristic Policies in a Sequention Decision-Making Task"
-Download entire folder including all the data folders to run the following analyses:
+The raw data was preprocessed with the fora0_prep_data_singe.py and fora0_prep_data_group.py script. Download entire folder including all the data folders to run the following analyses:
 - Compute MDP values
 - Model comparisons
 - Model fits
