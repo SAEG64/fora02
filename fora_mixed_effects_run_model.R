@@ -14,39 +14,45 @@ filepath <- paste(dirname(rstudioapi::getSourceEditorContext()$path), "/", sep =
 # Set working directory
 setwd(filepath)
 # Data import
-df_allSubs <- read_csv("DATA_clean/DATA_group_level/test_data.group_level.csv")
+df_allSubs <- read_csv("DATA_clean/DATA_group_level/test_data.group_level_datall.csv")
+# Add WWS model and bin_e
+df_allSubs['bin_e_state'] <- df_allSubs['** binary energy state']
+df_allSubs['wait_when_safe'] <- df_allSubs['** wait when safe']
+df_allSubs['OP_values'] <- df_allSubs['optimal policy values']
+df_allSubs['MHP_model'] <- df_allSubs['multi-heuristic policy']
+df_allSubs['OP_cap'] <- df_allSubs["OP_cap"]
 # Run mixed effects model
 mdl <- glmer(
   fora_response ~ 
-    p_succ_correct*condition_rORp + 
-    r_threat*condition_rORp + 
-    expected_gain*condition_rORp + 
+    OP_cap*condition_rORp +
     (1|subject_ID), 
-  data=df_allSubs, family="binomial"(link = "logit"))
+  data=df_allSubs, family="binomial"(link = "logit"), 
+  control = glmerControl(optimizer="bobyqa"))
 ss <- getME(mdl,c("theta","fixef"))
 #ss <- getME(mdl,"ALL")
 m3 <- update(
   mdl,start=ss,control=glmerControl(
     optimizer="bobyqa", optCtrl=list(maxfun=2e5)))
 summary(m3)
-# Predictions for plot
-ggpredict(m3, terms="p_succ_correct [all]")
-ggpredict(m3, terms = "r_threat")
-gg <- ggpredict(
-  mdl, terms = c(terms="p_succ_correct [all]", "r_threat", "condition_rORp"))
-# Create plot
-ggplot(gg, aes(x = x, y = predicted, colour = group)) +
-  geom_line() +
-  facet_wrap(~facet) +
-  labs(
-    title = "Predicted foraging likelihoods for two conditions:\nforests with low and high amount of threats",
-       x = ~italic(p)~"success corrected", y = "Foraging likelihood")+
-  guides(fill = guide_legend(title="Threat risk (bins)"), 
-         color = guide_legend(title="Threat risk (bins)"))+
-  theme_bw() +
-  theme(axis.text.x = element_text(size=16),
-        axis.text.y = element_text(size=16),
-        axis.title.x = element_text(size = 20),
-        axis.title.y = element_text(size = 20),
-        title = element_text(size=18),
-        legend.text = element_text(size=18))
+## Predictions for plot
+#ggpredict(m3, terms="p_succ_correct [all]")
+#ggpredict(m3, terms = "r_threat")
+#gg <- ggpredict(
+#  mdl, terms = c(terms="p_succ_correct [all]", "r_threat", "condition_rORp"))
+## Create plot
+#ggplot(gg, aes(x = x, y = predicted, colour = group)) +
+#  geom_line() +
+#  facet_wrap(~facet) +
+#  labs(
+#    title = "Predicted foraging likelihoods for two conditions:\nforests with low and high amount of threats",
+#       x = ~italic(p)~"success corrected", y = "Foraging likelihood")+
+#  guides(fill = guide_legend(title="Threat risk (bins)"), 
+#         color = guide_legend(title="Threat risk (bins)"))+
+#  theme_bw() +
+#  theme(axis.text.x = element_text(size=16),
+#        axis.text.y = element_text(size=16),
+#        axis.title.x = element_text(size = 20),
+#        axis.title.y = element_text(size = 20),
+#        title = element_text(size=18),
+#        legend.text = element_text(size=18))
+
