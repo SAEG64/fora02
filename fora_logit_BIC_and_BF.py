@@ -64,7 +64,7 @@ if condition == 0:
         # '$\\mathit{p}$ success + BES',
         # '$\\mathit{p}$ success + WWS',
         'multi-heuristic policy',
-        # '$\mathit{OP}$ values + cap',
+        '$\mathit{OP}$ values + cap',
         'optimal policy values'
     ]
 
@@ -73,6 +73,7 @@ if __name__ == '__main__':
     bes_count = []
     # Logit for subject-level data
     bic_all = []  # BICs for all models and subjects
+    s_count = 1
     for itr, fle in enumerate(glob.glob(path + "DATA_clean/test_data.*.CAT.csv")):
         # print(fle)
         # Get subject's data
@@ -80,6 +81,16 @@ if __name__ == '__main__':
         # print(sbj)
         dt = pd.read_csv(path + "DATA_clean/test_data." +
                          sbj + ".CAT" + ".csv")
+        
+        # Add ternary state model
+        BNW_state = []
+        for index, row in dt.iterrows():
+            BNW_state.append(2)
+            if row['** binary energy state'] == 1:
+                BNW_state[index] = 1
+            elif row['** wait when safe'] == 0:
+                BNW_state[index] = 3
+        dt['ternary state'] = BNW_state
 
         # Filter data
         # drop none responses
@@ -90,6 +101,10 @@ if __name__ == '__main__':
         elif condition == 2:
             dt = dt[dt["p/r heuristic"] == "['r']"]
         dt = dt.reset_index(drop=True)
+        
+        # Add subject ID
+        dt['ID_nr'] = s_count
+        s_count += 1
         
         # Test BES and WWS fit
         # wws_count.append(len(dt[dt['** wait when safe'] == 0]))
@@ -170,7 +185,7 @@ if __name__ == '__main__':
         # overwritten if analysis is only done for a subset (conditions) of the
         # data. This may affect the outcome of other scripts.
         '''
-        # dt_REV.to_csv(path + "DATA_clean/DATA_fitted/test_data." + sbj + ".CAT" + "_regress" + ".csv", index = False)
+        dt_REV.to_csv(path + "DATA_clean/DATA_fitted/test_data." + sbj + ".CAT" + "_regress" + ".csv", index = False)
 
     # Compute log-group Bayes factor
     # Transpose subject-model to model-subject order
@@ -212,7 +227,7 @@ if __name__ == '__main__':
         ax.tick_params(bottom=True, left=True, size=5, direction="in")
         # Horizontal Bar Plot
         ax.barh(name, valu)
-        ax.get_yticklabels()[-2].set_color("blue")
+        ax.get_yticklabels()[-3].set_color("blue")
         # Add Plot Title
         ax.set_title('log group Bayes factor (BF)',
                       loc='left', size=46)
@@ -278,7 +293,7 @@ if __name__ == '__main__':
     ]
     if condition == 0:
         mdlName = [
-            # '#12',
+            '#12',
             '#11',
             '#10',
             '#9',
