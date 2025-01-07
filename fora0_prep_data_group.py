@@ -88,8 +88,8 @@ def bootstrap_diff(cond1, cond2, n_resamples=10000):
     return np.percentile(bootstrap_diffs, [2.5, 97.5]), p_value
 
 ci, p_value = bootstrap_diff(condition1, condition2)
-# print(f"Bootstrap 95% CI of the difference between predator probabilities: {ci}")
-print(f"p value of the difference between predator probabilities: {p_value}")
+print(f"Bootstrap 95% CI of the difference between predator probabilities: {ci}")
+# print(f"p value of the difference between predator probabilities: {p_value}")
 
 ## Calculate Cohen's d
 # Calculate means and standard deviations
