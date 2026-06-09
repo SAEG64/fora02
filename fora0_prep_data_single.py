@@ -91,9 +91,12 @@ for itr, fle in enumerate(glob.glob(path + "raw_data/test_data.*.blck01.csv")):
         opr_idx = int(day_idx+1)*(n_d+1)-int(i_day)-1       # time points --> row
         if f_i ==0:
             opc_idx = int(lp_in + 7*p_i)                        # life points --> column
+            opc_alt = int(lp_in + 7*(1-p_i))                    # counterfactual
         else:
             opc_idx = int(lp_in + 7*(1-p_i))                    # life points --> column
+            opc_alt = int(lp_in + 7*p_i)                        # counterfactual
         dtC.loc[its,'OP_value_difference'] = mdpSheet.iat[opr_idx,opc_idx]
+        dtC.loc[its,'OP_value_difference_alternative'] = mdpSheet.iat[opr_idx,opc_alt]
         # Reassign heuristic values
         if p_i == 0 and f_i == 0:
             dtC.loc[its, 'p_succ_correct'] = itemsFora.loc[itm_idx]['pLeft_correct']

@@ -1,0 +1,3 @@
+Model,ELPD_LOO,Pareto_K_mean,N_obs,N_subjects
+"Unified: MH + OP (Standardized Continuous, Globally Standardized OP)",-4626.261174076094,"<xarray.DataArray 'pareto_shape' ()> Size: 8B
+array(0.04702711)",10270,29
