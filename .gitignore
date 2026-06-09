@@ -1,0 +1,5 @@
+# Recovery cache
+RECOVERY_RESULTS/idata_cache/
+
+# Pickle files
+*.pkl
