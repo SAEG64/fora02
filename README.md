@@ -19,7 +19,7 @@ The main analyses tested whether contextual adaptation was better characterized 
 - changes in alignment with an MDP-derived optimal policy,
 - or selective reweighting of decision-relevant task features within a shared policy architecture.
 
-The results support context-dependent feature reweighting rather than a switch between qualitatively distinct decision policies.
+The optimal policy (MDP_policy.csv) and corresponding state-action values (MDP_action_values.csv) were precomputed using backwards induction. Features refer to the expression levels of environmental compponents (e.g. weather type, probability of successful foraging, etc.) The results support context-dependent feature reweighting rather than a switch between qualitatively distinct decision policies.
 
 ## Participants
 
